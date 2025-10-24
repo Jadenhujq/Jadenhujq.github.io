@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>室友冲突风险检测问卷(Conflict Risk Scale)</title>
+
+<style>
+  body {
+    font-family: "Segoe UI", "PingFang SC", sans-serif;
+    background: #f5f8fa;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 35px 45px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  h1 {
+    text-align: center;
+    color: #222;
+    margin-bottom: 10px;
+  }
+
+  .page-desc {
+    text-align: center;
+    color: #555;
+    margin-bottom: 25px;
+  }
+
+  .question {
+    margin: 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  label {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  .btn {
+    display: block;
+    margin: 25px auto;
+    padding: 12px 24px;
+    background-color: #0077cc;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .btn:hover { background-color: #005fa3; }
+
+  .result {
+    text-align: center;
+    margin-top: 25px;
+    padding: 20px;
+    border-top: 2px solid #0077cc;
+  }
+
+  .grade {
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  .desc {
+    font-size: 15px;
+    color: #444;
+    margin-top: 10px;
+  }
+
+  table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+  }
+
+  th {
+    background: #f2f6fa;
+  }
+
+  @media (max-width:600px){
+    .container{
+      padding: 20px;
+    }
+    label {display:block;margin-top:5px;}
+  }
+
+</style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+
+<body>
+  <div class="container">
+    <h1>室友冲突风险检测问卷（CRS）</h1>
+    <p class="page-desc">请根据最近两周宿舍情况选择最符合的选项（1=非常不同意，5=非常同意）。</p>
+
+    <form id="surveyForm">
+      <div id="questions"></div>
+      <button type="button" class="btn" onclick="calculateScore()">提交并查看结果</button>
+    </form>
+
+    <div id="result" class="result"></div>
+  </div>
+
+<script>
+  // ===== 主体题目 =====
+  const questions = [
+    "我能坦率地和室友表达自己的不满和建议。",
+    "当我提出问题时，室友能认真听完并且执行建议。",
+    "宿舍中谁负责什么事情是明确的。",
+    "我们有共同大家认可的“宿舍相处规则”。",
+    "有人违反规则时，能迅速、平静地沟通解决。",
+    "最近宿舍气氛总体轻松愉快。",
+    "我与室友日常相处时感到尊重与被理解。",
+    "有时我会刻意避免和室友对话。",    // 反向
+    "我和室友之间近期有小摩擦但能妥善解决。",
+    "我认为宿舍内存在一些“悬而未决”的问题。", // 反向
+    "宿舍内有人容易情绪爆发或冷暴力。",      // 反向
+    "我们能用理性的方式解决分歧。",
+    "我认为大家信任彼此。",
+    "宿舍氛围愉快且自然。",
+    "最近一周我感到因宿舍关系而焦虑或烦躁。", // 反向
+    "若有新的矛盾出现，我们有信心应对。"
+  ];
+
+  const reverseQuestions = [8, 10, 11, 15]; // 反向题编号(从1开始)
+  const dimensions = {
+    "沟通": [1, 2, 12],
+    "规则": [3, 4, 5],
+    "氛围": [6, 7, 13, 14, 16],
+    "积压": [8, 9, 10, 11, 15]
+  };
+
+  const container = document.getElementById("questions");
+
+  // 动态渲染题目
+  questions.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<strong>${i+1}. ${q}</strong><br>`;
+    for(let j=1; j<=5; j++){
+      div.innerHTML += `<label><input type="radio" name="q${i+1}" value="${j}" required> ${j}</label>`;
+    }
+    container.appendChild(div);
+  });
+
+  function calculateScore(){
+    let total=0;
+    const scores = [];
+
+    // 收集分数
+    for(let i=0;i<questions.length;i++){
+      const selected = document.querySelector(`input[name="q${i+1}"]:checked`);
+      if(!selected){
+        alert(`请完成第 ${i+1} 题`);
+        return;
+      }
+      let value = parseInt(selected.value);
+      if(reverseQuestions.includes(i+1)) value = 6 - value;
+      scores.push(value);
+      total += value;
+    }
+
+    // 维度平均分
+    const dimScores = {};
+    for(const [dim, items] of Object.entries(dimensions)){
+      const avg = items.map(i => scores[i-1]).reduce((a,b)=>a+b,0)/items.length;
+      dimScores[dim] = avg;
+    }
+
+    const percentage = (total / 80) * 100;
+    let grade = "", desc = "", point = 0;
+
+    if (percentage >= 90) { grade="A"; point=4.0; desc="Outstanding performance on all learning outcomes."; }
+    else if (percentage >= 70){ grade="A-"; point=3.7; desc="Generally outstanding performance on almost all learning outcomes."; }
+    else if (percentage >= 50){ grade="B+"; point=3.3; desc="Substantial performance on almost all learning outcomes with only a few less substantial performance."; }
+    else if (percentage >= 30){ grade="B"; point=3.0; desc="Substantial performance on most learning outcomes."; }
+    else if (percentage >= 10){ grade="B-"; point=2.7; desc="Substantial performance on nearly most of the learning outcomes."; }
+    else { grade="C+"; point=2.3; desc="Satisfactory performance on majority of the learning outcomes."; }
+
+    // 综合心理建议
+    const avgTotal = total / 16;
+    let suggestion = "";
+    if(avgTotal >= 4.3){
+      suggestion = "🌿 宿舍关系非常稳定，可保持当前的沟通模式与积极氛围。";
+    } else if(avgTotal >= 3.7){
+      suggestion = "🌤 存在轻微摩擦，建议开展宿舍规则回顾或情感分享会。";
+    } else if(avgTotal >= 3.0){
+      suggestion = "🌧 关系有一定紧张，建议组织一次宿舍沟通会，关注问题本身，减少指责情绪。";
+    } else {
+      suggestion = "⚡ 风险较高，建议辅导员或心理委员介入，制定具体改善方案。";
+    }
+
+    // 构建结果表格
+    let dimTable = `
+      <table>
+        <tr><th>维度</th><th>平均分</th><th>风险提示</th></tr>`;
+    for(const [dim, avg] of Object.entries(dimScores)){
+      let risk = avg>=4.3?"稳定":avg>=3.7?"轻度风险":avg>=3.0?"中度风险":"高风险";
+      dimTable += `<tr><td>${dim}</td><td>${avg.toFixed(2)}</td><td>${risk}</td></tr>`;
+    }
+    dimTable += "</table>";
+
+    // 结果输出
+    document.getElementById("result").innerHTML = `
+      <div>总分：<b>${total}</b> / 80　　百分比：${percentage.toFixed(1)}%</div>
+      <div class="grade">${grade}（平均绩点 ${point.toFixed(1)}）</div>
+      <div class="desc">${desc}</div>
+      ${dimTable}
+      <div class="desc" style="margin-top:15px;"><b>心理建议：</b><br>${suggestion}</div>
+    `;
+
+    // 滚动到结果位置
+    if(document.body.scrollHeight > window.innerHeight){
+      window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
+    }
+  }
+</script>
+
+
+
+</body></html>
