@@ -184,10 +184,10 @@
     const percentage = (total / 80) * 100;
     let grade = "", desc = "", point = 0;
 
-    if (percentage >= 90) { grade="A"; point=4.0; desc="Outstanding performance on all learning outcomes."; }
-    else if (percentage >= 70){ grade="A-"; point=3.7; desc="Generally outstanding performance on almost all learning outcomes."; }
-    else if (percentage >= 50){ grade="B+"; point=3.3; desc="Substantial performance on almost all learning outcomes with only a few less substantial performance."; }
-    else if (percentage >= 30){ grade="B"; point=3.0; desc="Substantial performance on most learning outcomes."; }
+    if (percentage >= 80) { grade="A"; point=4.0; desc="Outstanding performance on all learning outcomes."; }
+    else if (percentage >= 60){ grade="A-"; point=3.7; desc="Generally outstanding performance on almost all learning outcomes."; }
+    else if (percentage >= 40){ grade="B+"; point=3.3; desc="Substantial performance on almost all learning outcomes with only a few less substantial performance."; }
+    else if (percentage >= 20){ grade="B"; point=3.0; desc="Substantial performance on most learning outcomes."; }
     else if (percentage >= 10){ grade="B-"; point=2.7; desc="Substantial performance on nearly most of the learning outcomes."; }
     else { grade="C+"; point=2.3; desc="Satisfactory performance on majority of the learning outcomes."; }
 
