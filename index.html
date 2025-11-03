@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI‑Driven Crypto Risk Management Platform</title>
+<style>
+:root {
+  --bg:#0e1117;--panel:#161b22;--accent:#00bcd4;
+  --text:#e8eaed;--success:#4caf50;--warning:#f8b400;
+  --font:"Segoe UI",sans-serif;
+}
+body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);}
+nav{display:flex;justify-content:space-between;align-items:center;
+     background:#11151c;padding:.8rem 1.2rem;position:sticky;top:0;z-index:9;}
+nav h1{color:var(--accent);font-size:1rem;margin:0;}
+nav button{background:none;border:none;color:var(--text);margin-left:1rem;
+           font-size:1rem;cursor:pointer;}
+nav button.active,nav button:hover{color:var(--accent);}
+main{max-width:1000px;margin:auto;padding:1rem;}
+.panel{background:var(--panel);border-radius:10px;padding:1.4rem;
+       box-shadow:0 2px 8px rgba(0,0,0,.3);margin-top:1rem;}
+.metric{display:flex;justify-content:space-between;margin:.4rem 0;}
+.metric span.value{color:var(--success);}
+.alert{background:rgba(248,180,0,.1);border-left:4px solid var(--warning);
+       padding:1rem;border-radius:6px;margin-top:1rem;
+       animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{border-left-color:var(--warning);}
+                 50%{border-left-color:#ffeb3b;}}
+.risk-options input{display:none;}
+.risk-options label{display:block;background:rgba(255,255,255,.05);
+                    margin:.6rem 0;padding:.8rem;border-radius:6px;cursor:pointer;}
+.risk-options input:checked+label{background:var(--accent);color:#000;font-weight:600;}
+button.submit{background:var(--accent);border:none;color:#000;
+              padding:.7rem 1.2rem;border-radius:6px;font-weight:600;
+              cursor:pointer;margin-top:.5rem;}
+.result{margin-top:.8rem;color:var(--accent);font-weight:600;}
+.timeline{border-left:2px solid var(--accent);margin-left:.8rem;padding-left:1rem;}
+.timeline p{position:relative;margin:.4rem 0;}
+.timeline p::before{content:'';position:absolute;left:-12px;top:5px;
+                    background:var(--accent);width:8px;height:8px;border-radius:50%;}
+.card{background:rgba(255,255,255,.05);border-left:4px solid var(--success);
+      padding:.8rem 1rem;margin-top:1rem;border-radius:6px;}
+footer{text-align:center;color:#888;padding:1rem 0;font-size:.9rem;}
+@media(max-width:600px){.metric{flex-direction:column;align-items:flex-start;}}
+</style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body>
+<nav>
+  <h1>Crypto Risk AI</h1>
+  <div>
+    <button class="active" onclick="showSection('dashboard',event)">Dashboard</button>
+    <button onclick="showSection('risk',event)">Risk Assessment</button>
+    <button onclick="showSection('settings',event)">Settings</button>
+  </div>
+</nav>
+<main>
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="panel">
+    <h2>Dashboard</h2>
+    <div class="metric"><span>Total Portfolio</span><span class="value">$12,340</span></div>
+    <div class="metric"><span>Stop‑Loss Threshold</span><span>$56,000</span></div>
+    <div class="metric"><span>Risk Level</span><span id="riskDisplay">Balanced</span></div>
+    <h3>AI Market Insight</h3>
+    <div class="metric"><span>Predicted 24 h Volatility</span><span>5.2 %</span></div>
+    <div class="metric"><span>Market Sentiment</span><span>Neutral → Slightly Bearish</span></div>
+    <div class="metric"><span>Recommendation</span><span>Hold with Caution</span></div>
+    <canvas id="chart" width="400" height="120"></canvas>
+    <div class="alert">
+      ⚠ BTC price approaching stop‑loss threshold.<br>System ready for tiered conversion.
+    </div>
+  </section>
+
+  <!-- RISK -->
+  <section id="risk" class="panel" style="display:none;">
+    <h2>Risk Assessment</h2>
+    <p>Select your risk level :</p>
+    <div class="risk-options">
+      <input type="radio" id="cons" name="risk" value="Conservative">
+      <label for="cons">Conservative – Prefer stable gains.</label>
+      <input type="radio" id="bal" name="risk" value="Balanced" checked="">
+      <label for="bal">Balanced – Accept moderate risk.</label>
+      <input type="radio" id="agg" name="risk" value="Aggressive">
+      <label for="agg">Aggressive – Comfortable with volatility.</label>
+    </div>
+    <button class="submit" onclick="updateRisk()">Submit</button>
+    <div id="riskResult" class="result"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="panel" style="display:none;">
+    <h2>Settings &amp; Notifications</h2>
+    <h3>Preferences</h3>
+    <div class="metric"><span>Stop‑Loss % :</span><span>8 %</span></div>
+    <div class="metric"><span>Stablecoin Choice :</span><span>USDT</span></div>
+    <div class="metric"><span>Cross‑Chain Mode :</span><span>Enabled</span></div>
+    <h3>Recent Notifications</h3>
+    <div class="timeline">
+      <p><strong>[Today]</strong> BTC volatility higher than average (7.1 %).</p>
+      <p><strong>[Yesterday]</strong> Automatic tiered conversion executed successfully.</p>
+      <p><strong>[Nov 1]</strong> Reinvestment recommendation: allocate 30 % USDT → DeFi low‑risk fund.</p>
+    </div>
+    <div class="card">
+      ✅ <strong>AI Re‑Investment Suggestion</strong><br>
+      Move 20 % of stable assets into low‑volatility yield products for steady growth.
+    </div>
+  </section>
+</main>
+<footer>© 2025 FTEC3002 Group 6 | Integrated Prototype</footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart
+const ctx=document.getElementById('chart');
+new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+datasets:[{label:'BTC Price (USD × 1k)',
+data:[55.2,55.8,56.1,55.6,56.2,55.0,55.8],
+borderColor:'#00bcd4',backgroundColor:'#00bcd444',fill:true,tension:.3}]},
+options:{plugins:{legend:{display:false}},
+scales:{x:{ticks:{color:'#ccc'}},y:{ticks:{color:'#ccc'}}}}});
+// Navigation
+function showSection(id,e){
+  document.querySelectorAll('section').forEach(s=>s.style.display='none');
+  document.getElementById(id).style.display='block';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+}
+// Risk adjustment
+function updateRisk(){
+  const val=document.querySelector('input[name=risk]:checked').value;
+  document.getElementById('riskDisplay').textContent=val;
+  const out=document.getElementById('riskResult');
+  let msg='';
+  if(val==='Conservative')msg='Low risk mode – AI tightens thresholds.';
+  if(val==='Balanced')msg='Balanced mode – default AI risk parameters.';
+  if(val==='Aggressive')msg='Aggressive mode – AI broadens threshold for higher return potential.';
+  out.textContent=`Risk level set to ${val}. ${msg}`;
+}
+</script>
+
+
+</body></html>
